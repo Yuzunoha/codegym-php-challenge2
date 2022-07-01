@@ -29,11 +29,23 @@ function logout()
     $msg = 'ログアウトしました。';
 }
 
+/**
+ * 返信元のメッセージリンクの出し分け
+ */
+function getLinkReplyTo(array $t): string
+{
+    if (isset($t['reply_id'])) {
+        $reply_id = $t['reply_id'];
+        return "<a href=/view.php?id={$reply_id}>[返信元のメッセージ]</a>";
+    }
+    return '';
+}
+
 if ($_POST) { /* POST Requests */
     if (isset($_POST['logout'])) { //ログアウト処理
         logout();
         header("Location: login.php");
-    } else if (isset($_POST['tweet_textarea'])) { //投稿処理
+    } elseif (isset($_POST['tweet_textarea'])) { //投稿処理
         newtweet($_POST['tweet_textarea']);
         header("Location: index.php");
     }
@@ -70,9 +82,7 @@ $tweet_count = count($tweets);
         <div class="card-body">
           <p class="card-title"><b><?= "{$t['id']}" ?></b> <?= "{$t['name']}" ?> <small><?= "{$t['updated_at']}" ?></small></p>
           <p class="card-text"><?= "{$t['text']}" ?></p>
-          <!--返信課題はここから修正しましょう。-->
-          <!--<p>[返信する] [返信元のメッセージ]</p>-->
-          <!--返信課題はここまで修正しましょう。-->
+          <p>[返信する] <?= getLinkReplyTo($t) ?></p>
         </div>
       </div>
     <?php } ?>
