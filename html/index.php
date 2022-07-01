@@ -32,13 +32,18 @@ function logout()
 /**
  * 返信元のメッセージリンクの出し分け
  */
-function getLinkReplyTo(array $t): string
+function getLinkOriginalTweet(array $t): string
 {
     if (isset($t['reply_id'])) {
         $reply_id = $t['reply_id'];
         return "<a href=/view.php?id={$reply_id}>[返信元のメッセージ]</a>";
     }
     return '';
+}
+
+function getLinkCreateReply(array $t): string
+{
+    return '<a href="index.php?reply=2">[返信する]</a>';
 }
 
 if ($_POST) { /* POST Requests */
@@ -82,7 +87,7 @@ $tweet_count = count($tweets);
         <div class="card-body">
           <p class="card-title"><b><?= "{$t['id']}" ?></b> <?= "{$t['name']}" ?> <small><?= "{$t['updated_at']}" ?></small></p>
           <p class="card-text"><?= "{$t['text']}" ?></p>
-          <p>[返信する] <?= getLinkReplyTo($t) ?></p>
+          <p><?= getLinkCreateReply($t) ?> <?= getLinkOriginalTweet($t) ?></p>
         </div>
       </div>
     <?php } ?>
