@@ -43,7 +43,19 @@ function getLinkOriginalTweet(array $t): string
 
 function getLinkCreateReply(array $t): string
 {
-    return '<a href="index.php?reply=2">[返信する]</a>';
+    $tweet_id = $t['id'];
+    return "<a href=\"index.php?reply={$tweet_id}\">[返信する]</a>";
+}
+
+function getUserName($post_id)
+{
+    $name = getTweet($post_id)['name'];
+    return $name;
+}
+
+function getUserReplyText($post_id)
+{
+    return "Re: @" . getUserName($post_id) . ' ';
 }
 
 if ($_POST) { /* POST Requests */
@@ -73,7 +85,11 @@ $tweet_count = count($tweets);
     <div class="card mb-3">
       <div class="card-body">
         <form method="POST">
-          <textarea class="form-control" type=textarea name="tweet_textarea" ?><!-- 返信課題はここを修正しましょう。 --></textarea>
+          <textarea class="form-control" type=textarea name="tweet_textarea" ?><?php
+            if (isset($_GET['reply'])) {
+                echo getUserReplyText($_GET['reply']);
+            }
+          ?></textarea>
           <!-- 返信課題はここからのコードを修正しましょう。 -->
           <!-- 返信課題はここからのコードを修正しましょう。 -->
           <br>
