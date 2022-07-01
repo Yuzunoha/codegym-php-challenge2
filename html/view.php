@@ -1,10 +1,7 @@
 <?php
 require_once('db.php');
 require_once('functions.php');
-
-/* 返信課題はここからのコードを修正しましょう。 */
-
-/* 返信課題はここまでのコードを修正しましょう。 */
+$t = getTweet($_GET['id']);
 ?>
 
 <!DOCTYPE html>
@@ -21,9 +18,8 @@ require_once('functions.php');
     <div class="card mb-3">
       <div class="card-body">
         <!-- 返信課題はここからのコードを修正しましょう。 -->
-          <p class="card-title"><b>2</b> <small>nagata1 YYYY-MM-DD hh:mm:ss</small></p>
-          <p class="card-text">投稿2つ目</p>
-          <?php print_r(getTweet(2)); ?>
+          <p class="card-title"><b><?= "{$t['id']}" ?></b> <small><?= "{$t['name']}" ?> <?= "{$t['updated_at']}" ?></small></p>
+          <p class="card-text"><?= "{$t['text']}" ?></p>
         <!-- 返信課題はここまでのコードを修正しましょう。 -->
       </div>
     </div>
