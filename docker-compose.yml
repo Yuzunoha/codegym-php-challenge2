@@ -1,0 +1,29 @@
+version: '3'
+services:
+  app:
+    build:
+      context: ./docker/app
+    volumes:
+      - ./html:/var/www/html
+    ports:
+      - 20380:80
+    environment:
+      TZ: Asia/Tokyo
+  db:
+    build:
+      context: ./docker/db
+    volumes:
+      - ./docker/db/var_lib_mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=bbs
+      - TZ=Asia/Tokyo
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    ports:
+      - 20381:80
+    volumes:
+      - ./docker/phpmyadmin/sessions:/sessions
