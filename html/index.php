@@ -20,6 +20,15 @@ function newtweet($tweet_textarea)
     // 汎用ログインチェック処理をルータに作る。早期リターンで
     createTweet($tweet_textarea, $_SESSION['user_id']);
 }
+
+/**
+ * 返信として投稿する
+ */
+function newReplyTweet($tweet_textarea, $reply_post_id)
+{
+    createReplyTweet($tweet_textarea, $reply_post_id, $_SESSION['user_id']);
+}
+
 /**
  * ログアウト処理を行う。
  */
@@ -29,20 +38,53 @@ function logout()
     $msg = 'ログアウトしました。';
 }
 
+/**
+ * 返信元のメッセージリンクの出し分け
+ */
+function getLinkOriginalTweet(array $t): string
+{
+    if (isset($t['reply_id'])) {
+        $reply_id = $t['reply_id'];
+        return "<a href=/view.php?id={$reply_id}>[返信元のメッセージ]</a>";
+    }
+    return '';
+}
+
+function getLinkCreateReply(array $t): string
+{
+    $tweet_id = $t['id'];
+    return "<a href=\"index.php?reply={$tweet_id}\">[返信する]</a>";
+}
+
+function getUserName($post_id)
+{
+    $name = getTweet($post_id)['name'];
+    return $name;
+}
+
+function getUserReplyText($post_id)
+{
+    return "Re: @" . getUserName($post_id) . ' ';
+}
+
 if ($_POST) { /* POST Requests */
     if (isset($_POST['logout'])) { //ログアウト処理
         logout();
         header("Location: login.php");
-    } else if (isset($_POST['tweet_textarea'])) { //投稿処理
-        newtweet($_POST['tweet_textarea']);
+    } elseif (isset($_POST['tweet_textarea'])) { //投稿処理
+        if (isset($_POST['reply_post_id'])) {
+            /* 返信の投稿である */
+            newReplyTweet($_POST['tweet_textarea'], $_POST['reply_post_id']);
+        } else {
+            /* 返信ではない投稿である */
+            newtweet($_POST['tweet_textarea']);
+        }
         header("Location: index.php");
     }
 }
 
 $tweets = getTweets();
 $tweet_count = count($tweets);
-/* 返信課題はここからのコードを修正しましょう。 */
-/* 返信課題はここからのコードを修正しましょう。 */
 ?>
 
 <!DOCTYPE html>
@@ -56,11 +98,15 @@ $tweet_count = count($tweets);
     <div class="card mb-3">
       <div class="card-body">
         <form method="POST">
-          <textarea class="form-control" type=textarea name="tweet_textarea" ?><!-- 返信課題はここを修正しましょう。 --></textarea>
-          <!-- 返信課題はここからのコードを修正しましょう。 -->
-          <!-- 返信課題はここからのコードを修正しましょう。 -->
+          <textarea class="form-control" type=textarea name="tweet_textarea" ?><?php
+            $reply_id = $_GET['reply'] ?? null;
+            if ($reply_id) {
+                echo getUserReplyText($reply_id);
+            }
+          ?></textarea>
           <br>
           <input class="btn btn-primary" type=submit value="投稿">
+          <?= $reply_id ? "<input type=\"hidden\" name=\"reply_post_id\" value=\"{$reply_id}\" />" : '' ?>
         </form>
       </div>
     </div>
@@ -70,9 +116,7 @@ $tweet_count = count($tweets);
         <div class="card-body">
           <p class="card-title"><b><?= "{$t['id']}" ?></b> <?= "{$t['name']}" ?> <small><?= "{$t['updated_at']}" ?></small></p>
           <p class="card-text"><?= "{$t['text']}" ?></p>
-          <!--返信課題はここから修正しましょう。-->
-          <!--<p>[返信する] [返信元のメッセージ]</p>-->
-          <!--返信課題はここまで修正しましょう。-->
+          <p><?= getLinkCreateReply($t) ?> <?= getLinkOriginalTweet($t) ?></p>
         </div>
       </div>
     <?php } ?>

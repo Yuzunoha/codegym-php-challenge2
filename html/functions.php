@@ -50,12 +50,32 @@ function createTweet($text, $user_id)
 }
 
 /**
+ * @param string $text 投稿内容
+ * @param string $reply_post_id 返信先(この投稿で返信する対象の投稿)の投稿ID
+ * @param string $user_id ユーザーID
+ * @return bool 成功・失敗
+ */
+function createReplyTweet($text, $reply_post_id, $user_id)
+{
+    $sql = 'insert into tweets (text, user_id, created_at, updated_at, reply_id)';
+    $sql .= ' values (:text, :user_id, :created_at, :updated_at, :reply_id)';
+    $now = date("Y-m-d H:i:s");
+    $stmt = getPdo()->prepare($sql);
+    $stmt->bindValue(':text', $text, PDO::PARAM_STR);
+    $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->bindValue(':created_at', $now, PDO::PARAM_STR);
+    $stmt->bindValue(':updated_at', $now, PDO::PARAM_STR);
+    $stmt->bindValue(':reply_id', $reply_post_id, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+/**
  * @return PDOStatement ユーザー情報の連想配列を格納したPDOStatement
  * 投稿の一覧を取得します。
  */
 function getTweets()
 {
-    $sql = 'select t.id, t.text, t.user_id, t.created_at, t.updated_at, u.name';
+    $sql = 'select t.id, t.text, t.user_id, t.created_at, t.reply_id, t.updated_at, u.name';
     $sql .= ' from tweets t join users u on t.user_id = u.id';
     $sql .= ' order by t.updated_at desc';
     $stmt = getPdo()->prepare($sql);
@@ -63,7 +83,13 @@ function getTweets()
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/* 返信課題はここからのコードを修正しましょう。 */
-
-
-/* 返信課題はここからのコードを修正しましょう。 */
+function getTweet($id)
+{
+    $sql = 'select t.id, t.text, t.user_id, t.created_at, t.updated_at, t.reply_id, u.name';
+    $sql .= ' from tweets t join users u on t.user_id = u.id';
+    $sql .= ' where t.id = :id';
+    $stmt = getPdo()->prepare($sql);
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
+}
