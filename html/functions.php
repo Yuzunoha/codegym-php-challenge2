@@ -50,6 +50,26 @@ function createTweet($text, $user_id)
 }
 
 /**
+ * @param string $text 投稿内容
+ * @param string $reply_post_id 返信先(この投稿で返信する対象の投稿)の投稿ID
+ * @param string $user_id ユーザーID
+ * @return bool 成功・失敗
+ */
+function createReplyTweet($text, $reply_post_id, $user_id)
+{
+    $sql = 'insert into tweets (text, user_id, created_at, updated_at, reply_id)';
+    $sql .= ' values (:text, :user_id, :created_at, :updated_at, :reply_id)';
+    $now = date("Y-m-d H:i:s");
+    $stmt = getPdo()->prepare($sql);
+    $stmt->bindValue(':text', $text, PDO::PARAM_STR);
+    $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->bindValue(':created_at', $now, PDO::PARAM_STR);
+    $stmt->bindValue(':updated_at', $now, PDO::PARAM_STR);
+    $stmt->bindValue(':reply_id', $reply_post_id, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+/**
  * @return PDOStatement ユーザー情報の連想配列を格納したPDOStatement
  * 投稿の一覧を取得します。
  */

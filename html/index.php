@@ -20,6 +20,15 @@ function newtweet($tweet_textarea)
     // 汎用ログインチェック処理をルータに作る。早期リターンで
     createTweet($tweet_textarea, $_SESSION['user_id']);
 }
+
+/**
+ * 返信として投稿する
+ */
+function newReplyTweet($tweet_textarea, $reply_post_id)
+{
+    createReplyTweet($tweet_textarea, $reply_post_id, $_SESSION['user_id']);
+}
+
 /**
  * ログアウト処理を行う。
  */
@@ -63,15 +72,19 @@ if ($_POST) { /* POST Requests */
         logout();
         header("Location: login.php");
     } elseif (isset($_POST['tweet_textarea'])) { //投稿処理
-        newtweet($_POST['tweet_textarea']);
+        if (isset($_POST['reply_post_id'])) {
+            /* 返信の投稿である */
+            newReplyTweet($_POST['tweet_textarea'], $_POST['reply_post_id']);
+        } else {
+            /* 返信ではない投稿である */
+            newtweet($_POST['tweet_textarea']);
+        }
         header("Location: index.php");
     }
 }
 
 $tweets = getTweets();
 $tweet_count = count($tweets);
-/* 返信課題はここからのコードを修正しましょう。 */
-/* 返信課題はここからのコードを修正しましょう。 */
 ?>
 
 <!DOCTYPE html>
@@ -86,13 +99,14 @@ $tweet_count = count($tweets);
       <div class="card-body">
         <form method="POST">
           <textarea class="form-control" type=textarea name="tweet_textarea" ?><?php
-            if (isset($_GET['reply'])) {
-                echo getUserReplyText($_GET['reply']);
+            $reply_id = $_GET['reply'] ?? null;
+            if ($reply_id) {
+                echo getUserReplyText($reply_id);
             }
           ?></textarea>
-          <input type="hidden" name="reply_post_id" value="<?= $_GET['reply'] ?>" />
           <br>
           <input class="btn btn-primary" type=submit value="投稿">
+          <?= $reply_id ? "<input type=\"hidden\" name=\"reply_post_id\" value=\"{$reply_id}\" />" : '' ?>
         </form>
       </div>
     </div>
