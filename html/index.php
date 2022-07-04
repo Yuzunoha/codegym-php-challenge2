@@ -90,8 +90,7 @@ $tweet_count = count($tweets);
                 echo getUserReplyText($_GET['reply']);
             }
           ?></textarea>
-          <!-- 返信課題はここからのコードを修正しましょう。 -->
-          <!-- 返信課題はここからのコードを修正しましょう。 -->
+          <input type="hidden" name="reply_post_id" value="<?= $_GET['reply'] ?>" />
           <br>
           <input class="btn btn-primary" type=submit value="投稿">
         </form>
